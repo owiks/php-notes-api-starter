@@ -23,15 +23,15 @@ final class Request
         }
 
         try {
-            $data = json_decode($rawBody, true, flags: JSON_THROW_ON_ERROR);
+            $data = json_decode($rawBody, false, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException) {
             Response::json(['errors' => ['body' => 'Request body must be valid JSON.']], 422);
         }
 
-        if (!is_array($data)) {
+        if (!$data instanceof stdClass) {
             Response::json(['errors' => ['body' => 'JSON body must be an object.']], 422);
         }
 
-        return $data;
+        return get_object_vars($data);
     }
 }

@@ -21,9 +21,7 @@ final class NoteController
      */
     public function index(): void
     {
-        // TODO: вернуть список заметок из NoteRepository.
-        // Response::json(['data' => $this->notes->all()]);
-        Response::todo('Implement GET /api/notes');
+        Response::json(['data' => $this->notes->all()]);
     }
 
     /**
@@ -33,20 +31,24 @@ final class NoteController
     {
         $input = Request::json();
 
-        $title = trim((string) ($input['title'] ?? ''));
-        $text = trim((string) ($input['text'] ?? ''));
+        $title = $input['title'] ?? null;
+        $text = $input['text'] ?? null;
+        $errors = [];
 
-        if ($title === '' || $text === '') {
-            Response::json([
-                'errors' => [
-                    'title' => 'title is required',
-                    'text' => 'text is required',
-                ],
-            ], 422);
+        if (!is_string($title) || trim($title) === '') {
+            $errors['title'] = 'title must be a non-empty string';
         }
 
-        // TODO: создать заметку через NoteRepository.
-        Response::todo('Implement POST /api/notes');
+        if (!is_string($text) || trim($text) === '') {
+            $errors['text'] = 'text must be a non-empty string';
+        }
+
+        if ($errors !== []) {
+            Response::json(['errors' => $errors], 422);
+        }
+
+        $note = $this->notes->create(trim($title), trim($text));
+        Response::json(['data' => $note], 201);
     }
 
     /**
@@ -56,13 +58,12 @@ final class NoteController
      */
     public function show(int $id): void
     {
-        // TODO: найти заметку через NoteRepository или вернуть 404.
+        $note = $this->notes->find($id);
 
-        // if ($note === null) {
-        //     Response::json(['error' => 'Note not found'], 404);
-        // }
-        //
-        // Response::json(['data' => $note]);
-        Response::todo('Implement GET /api/notes/{id}');
+        if ($note === null) {
+            Response::json(['error' => 'Note not found'], 404);
+        }
+
+        Response::json(['data' => $note]);
     }
 }
