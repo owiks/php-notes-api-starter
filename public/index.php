@@ -15,7 +15,7 @@ $path = rtrim($path, '/') ?: '/';
 if ($method === 'GET' && $path === '/') {
     Response::json([
         'name' => 'Native PHP Notes API Starter',
-        'message' => 'Open /api/ping or start implementing /api/notes',
+        'message' => 'Open /api/ping or /api/notes',
     ]);
 }
 

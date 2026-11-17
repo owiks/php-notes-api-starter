@@ -23,8 +23,11 @@ final class NoteRepository
      */
     public function all(): array
     {
-        // TODO: выполнить SELECT id, title, text, created_at FROM notes ORDER BY id DESC.
-        return [];
+        $statement = $this->pdo->query(
+            'SELECT id, title, text, created_at FROM notes ORDER BY id DESC'
+        );
+
+        return $statement->fetchAll();
     }
 
     /**
@@ -37,12 +40,21 @@ final class NoteRepository
      */
     public function create(string $title, string $text): array
     {
-        // TODO: отправить запрос на создании заметки и вернуть заметку.
-        return [
-            'id' => 0,
+        $createdAt = date(DATE_ATOM);
+        $statement = $this->pdo->prepare(
+            'INSERT INTO notes (title, text, created_at) VALUES (:title, :text, :created_at)'
+        );
+        $statement->execute([
             'title' => $title,
             'text' => $text,
-            'created_at' => date(DATE_ATOM),
+            'created_at' => $createdAt,
+        ]);
+
+        return [
+            'id' => (int) $this->pdo->lastInsertId(),
+            'title' => $title,
+            'text' => $text,
+            'created_at' => $createdAt,
         ];
     }
 
@@ -55,7 +67,12 @@ final class NoteRepository
      */
     public function find(int $id): ?array
     {
-        // TODO: выполнить SELECT по id и вернуть заметку или null.
-        return null;
+        $statement = $this->pdo->prepare(
+            'SELECT id, title, text, created_at FROM notes WHERE id = :id'
+        );
+        $statement->execute(['id' => $id]);
+        $note = $statement->fetch();
+
+        return $note === false ? null : $note;
     }
 }
